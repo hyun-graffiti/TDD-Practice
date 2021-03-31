@@ -62,7 +62,7 @@ function setProbabilityOfChordsInLabels() {
   Object.keys(probabilityOfChordsInLabels).forEach(function (difficulty) {
     Object.keys(probabilityOfChordsInLabels[difficulty]).forEach(function (chord) {
       probabilityOfChordsInLabels[difficulty][chord] =
-        (probabilityOfChordsInLabels[difficulty][chord] * 1.0) / songs.length
+        probabilityOfChordsInLabels[difficulty][chord] / songs.length
     })
   })
 }
@@ -82,10 +82,9 @@ setChordCountsInLabels()
 setProbabilityOfChordsInLabels()
 
 function classify(chords) {
-  var total = labelProbabilities
-  console.log(total)
+  console.log(labelProbabilities)
   var classified = {}
-  Object.keys(total).forEach(function (difficulty) {
+  Object.keys(labelProbabilities).forEach(function (difficulty) {
     var first = labelProbabilities[difficulty] + 1.01
     chords.forEach(function (chord) {
       var probabilityOfChordInLabel = probabilityOfChordsInLabels[difficulty][chord]
