@@ -1,4 +1,4 @@
-var classifier = {
+const classifier = {
   songs: [],
   allChords: new Set(),
   labelCounts: new Map(),
@@ -7,7 +7,7 @@ var classifier = {
   probabilityOfChordsInLabels: new Map(),
 }
 
-var songList = {
+const songList = {
   difficulties: ['easy', 'medium', 'hard'],
   songs: [],
   addSong: function (name, chords, difficulty) {
@@ -74,18 +74,23 @@ function setLabelsAndProbabilities() {
 }
 
 function classify(chords) {
-  var smoothing = 1.01
-  var classified = new Map()
+  const smoothing = 1.01
+  const classified = new Map()
 
   classifier.labelProbabilities.forEach(function (_probabilities, difficulty) {
-    var first = classifier.labelProbabilities.get(difficulty) + smoothing
-    chords.forEach(function (chord) {
-      var probabilityOfChordInLabel = classifier.probabilityOfChordsInLabels.get(difficulty)[chord]
-      if (probabilityOfChordInLabel !== undefined) {
-        first = first * (probabilityOfChordInLabel + smoothing)
+    const totalLikelihood = chords.reduce(function (total, chord) {
+      const probabilityOfChordInLabel = classifier.probabilityOfChordsInLabels.get(difficulty)[
+        chord
+      ]
+
+      if (probabilityOfChordInLabel) {
+        return total * (probabilityOfChordInLabel + smoothing)
+      } else {
+        return total
       }
-    })
-    classified.set(difficulty, first)
+    }, classifier.labelProbabilities.get(difficulty) + smoothing)
+
+    classified.set(difficulty, totalLikelihood)
   })
 
   return classified
@@ -93,7 +98,7 @@ function classify(chords) {
 
 // Test Code //
 
-var wish = require('wish')
+const wish = require('wish')
 
 describe('the file', function () {
   songList.addSong('imagine', ['c', 'cmaj7', 'f', 'am', 'dm', 'g', 'e7'], 0)
@@ -113,7 +118,7 @@ describe('the file', function () {
   trainAll()
 
   it('classifies', function () {
-    var classified = classify(['f#m7', 'a', 'dadd9', 'dmaj7', 'bm', 'bm7', 'd', 'f#m'])
+    const classified = classify(['f#m7', 'a', 'dadd9', 'dmaj7', 'bm', 'bm7', 'd', 'f#m'])
 
     wish(classified.get('easy') === 1.3433333333333333)
     wish(classified.get('medium') === 1.5060259259259259)
